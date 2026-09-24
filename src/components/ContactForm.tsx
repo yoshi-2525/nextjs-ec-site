@@ -1,0 +1,64 @@
+'use client'; // クライアント（ブラウザ）側で動作
+
+import React from 'react';
+
+// ユーザーフォームコンポーネントに渡すデータ（props）の型定義
+interface ContactFormProps {
+  // フォーム送信時に実行されるイベントハンドラ
+  onSubmit: (e: React.SubmitEvent<HTMLFormElement>) => void;
+  // 入力項目に設定する初期値
+  initialValues?: {
+    name: string;
+    email: string;
+    message: string
+  };
+  submitLabel: string; // フォーム送信ボタンの表示名
+}
+
+// 入力欄の共通スタイル
+const inputStyle = 'w-full border border-gray-300 px-3 py-2 rounded-sm focus:ring-2 focus:ring-indigo-500';
+// ラベルの共通スタイル
+const labelStyle = "block font-bold mb-1";
+// バッジの共通スタイル
+const badgeStyle = "ml-2 px-2 py-0.5 bg-red-500 text-white text-xs font-semibold rounded-md";
+
+// 問い合わせの共通コンポーネント
+export default function ContactForm({
+  onSubmit,
+  initialValues = { name: '', email: '', message: '' },
+  submitLabel
+}: ContactFormProps) {
+  return (
+    <form onSubmit={onSubmit} className="w-full space-y-6 p-8 bg-white shadow-lg rounded-xl">
+      <label className={labelStyle} htmlFor="name">
+        氏名<span className={badgeStyle}>必須</span>
+      </label>
+      <input type="text" id="name" name="name" required
+        defaultValue={initialValues.name} className={inputStyle}
+      />
+
+      <label className={labelStyle} htmlFor="email">
+        メールアドレス<span className={badgeStyle}>必須</span>
+      </label>
+      <input type="email" id="email" name="email" required
+        defaultValue={initialValues.email} className={inputStyle}
+      />
+      <label className={labelStyle} htmlFor="message">
+        お問い合わせ内容<span className={badgeStyle}>必須</span>
+      </label>
+      <textarea
+        id="message"
+        name="message"
+        required
+        rows={6}
+        defaultValue={initialValues.message}
+        className={inputStyle}
+        />
+
+
+      <button type="submit" className="w-full mt-2 bg-indigo-500 hover:bg-indigo-600 text-white py-2 rounded-sm">
+        {submitLabel}
+      </button>
+    </form>
+  );
+}
