@@ -3,10 +3,12 @@ import { notFound } from 'next/navigation'; // 404ページ表示用
 import Link from 'next/link';
 import Image from 'next/image';
 import { type ProductData } from '@/types/product';
-import { isLoggedIn } from '@/lib/auth';
+import { cookies } from 'next/headers';
+import { isLoggedIn, AUTH_TOKEN } from '@/lib/auth';
 import CartControls from './CartControls';
 import { type ReviewsResponse } from '@/types/review';
 import ReviewControls from '@/app/products/[id]/ReviewControls';
+import FavoriteControls from './FavoriteControls';
 
 
 
@@ -47,7 +49,30 @@ async function getReviews(id: string): Promise<ReviewsResponse | []> {
     cache: 'no-store',
   });
   if (!res.ok) return []; // 失敗時は空配列
-  return await res.json(); 
+  return await res.json();
+}
+
+// 商品IDに紐づくお気に入り状態を取得
+async function getFavoriteStatus(id: string): Promise<boolean> {
+  try {
+    // クッキーを取得（サーバーコンポーネントからのfetchでは自動送信されないため明示的に設定）
+    const cookieStore = await cookies();
+    const token = cookieStore.get(AUTH_TOKEN)?.value;
+    if (!token) return false; // 未ログイン時は未追加扱い
+    const headers: HeadersInit = { 'Cookie': `${AUTH_TOKEN}=${token}` };
+
+    // お気に入り取得APIから商品IDの登録有無を取得
+    const res = await fetch(`${process.env.BASE_URL}/api/favorites/${id}`, {
+      cache: 'no-store',
+      headers: headers,
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.isFavorite === true;
+  } catch (err) {
+    console.error('お気に入り状態取得エラー：', err);
+    return false;
+  }
 }
 
 // レビューの星表示を決定
@@ -63,10 +88,11 @@ export default async function ProductDetailPage(props: ProductDetailPageProps) {
   const resolvedParams = await props.params; // 非同期で取得されるためawaitが必要
   const productId = resolvedParams.id; // URLパラメータから商品IDを取得
 
-  // 商品データとレビューデータを並行して取得
-  const [product, reviewsResponse] = await Promise.all([
+  // 商品データ・レビューデータ・お気に入り状態を並行して取得
+  const [product, reviewsResponse, isFavorite] = await Promise.all([
     getProduct(productId),
     getReviews(productId),
+    getFavoriteStatus(productId),
   ]);
 
   // 商品が見つからない場合は404ページを表示
@@ -142,7 +168,7 @@ export default async function ProductDetailPage(props: ProductDetailPageProps) {
               />
             )}
             {loggedIn && (
-              <button className="text-teal-800 hover:underline">&#9825; お気に入り追加</button>
+              <FavoriteControls productId={product.id} initialFavorite={isFavorite} />
             )}
           </div>
 
