@@ -1,9 +1,11 @@
 'use client'; 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { type AuthUser } from '@/lib/auth';
+import { useCart } from '@/hooks/useCart';
+
 
 // ヘッダーコンポーネントに渡すデータ（props）の型定義
 export interface HeaderProps {
@@ -22,6 +24,14 @@ export default function Header({ user }: HeaderProps) {
   const perPage = searchParams.get('perPage') || '16';
   const sort = searchParams.get('sort') || 'new';
   const keyword = searchParams.get('keyword') || '';
+  // カート内商品の総数を取得
+  const { totalQuantity } = useCart();
+  // クライアント側での描画かどうか（サーバー描画・ハイドレーション時はfalse）
+  const isClient = useSyncExternalStore(() => () => {}, () => true, () => false);
+  // 表示用のカート数量（サーバー描画時は0にしてハイドレーションの不一致を防ぐ）
+  const displayQuantity = isClient ? totalQuantity : 0;
+
+
 
   // メニュー外のクリックを検知し、メニューを閉じる
   useEffect(() => {
@@ -51,10 +61,16 @@ export default function Header({ user }: HeaderProps) {
       </div>
 
       <nav className="flex-grow text-center mt-8">
-        <ul className="flex justify-center space-x-8 list-none">
-          <li className="border-r border-gray-300 pr-8"><Link href="/">ホーム</Link></li>
-          <li className="border-r border-gray-300 pr-8"><Link href="/products">商品一覧</Link></li>
-          <li><Link href="/contact">お問い合わせ</Link></li>
+        <ul className="inline-flex divide-x divide-gray-300 list-none">
+          <li className="border-r border-gray-300">
+            <Link href="/" className="block w-[120px] py-3 hover:bg-gray-200 rounded-sm">ホーム</Link>
+          </li>
+          <li className="border-r border-gray-300">
+            <Link href="/products" className="block w-[120px] py-3 hover:bg-gray-200 rounded-sm">商品一覧</Link>
+          </li>
+          <li>
+            <Link href="/contact" className="block w-[120px] py-3 hover:bg-gray-200 rounded-sm">お問い合わせ</Link>
+          </li>
         </ul>
       </nav>
 
@@ -75,9 +91,15 @@ export default function Header({ user }: HeaderProps) {
         <Link href="/account/favorites">
           <Image src="/icons/heart-icon.svg" alt="Favorites" width={24} height={24} className="w-6 h-6" />
         </Link>
-        <Link href="/cart">
+        <Link href="/cart" className="relative">
           <Image src="/icons/cart-icon.svg" alt="Cart" width={24} height={24} className="w-6 h-6" />
+            {displayQuantity > 0 && (
+              <span className="absolute -top-2 -right-2 w-[20px] h-[20px] bg-yellow-500 text-black flex items-center justify-center rounded-full ring-2 ring-white text-xs font-semibold">
+                {displayQuantity > 9 ? '9+' : displayQuantity}
+              </span>
+            )}          
         </Link>
+        
           <div className="relative" ref={menuRef}>
             <button onClick={toggleMenu}  className="cursor-pointer" >
               <Image src="/icons/account-icon.svg" alt="Account" width={24} height={24} className="w-6 h-6" />

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import ProductForm from '@/components/ProductForm';
 import { type ProductData } from '@/types/product';
 
+
 // 商品データの型定義
 type Product = ProductData; // 基本型から変更なし
 

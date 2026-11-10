@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true, // JavaScriptからのアクセスを禁止（XSS対策）
       // secureは本番環境のみtrueにする
       secure: process.env.NODE_ENV === 'production', // 暗号化されたHTTPSでのみ送信（盗聴リスク低減）
-      sameSite: 'strict', // 別サイトからのリクエスト時にクッキーを送信しない（CSRF対策）
+      sameSite: 'lax', // 別サイトからのPOST等ではクッキーを送信しない（CSRF対策）。決済後のリダイレクト等のリンク遷移では送信する
       // maxAgeは秒単位
       maxAge: 60 * 60, // 有効期限（1時間）
       path: '/', // 全てのパスでクッキーを利用可能にする

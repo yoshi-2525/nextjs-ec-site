@@ -4,6 +4,9 @@ import { type ProductCardProps } from '@/components/ProductCard';
 import { type ProductData } from '@/types/product';
 import Pagination from '@/components/Pagination';
 import Sort from '@/app/products/Sort';
+import { type ReviewsResponse } from '@/types/review';
+import ReviewControls from '@/app/products/[id]/ReviewControls';
+
 
 
 // 商品データの型定義
@@ -20,6 +23,7 @@ interface ProductsPageData {
     totalPages: number;
   };
 }
+
 
 // 商品一覧ページ
 export default async function ProductsPage({
@@ -61,7 +65,9 @@ if (!Array.isArray(productsPageData.products)) {
     id: String(row.id),
     title: row.name,
     price: row.price,
-    imageUrl: row.image_url ?? undefined
+    imageUrl: row.image_url ?? undefined,
+    rating: row.review_avg,
+    reviewCount: row.review_count
   }));
 
   return (

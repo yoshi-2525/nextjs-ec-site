@@ -53,14 +53,14 @@ export default function Home() {
           priority
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white p-4">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 drop-shadow-md">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 drop-shadow-md text-shadow-lg/50">
             最新コレクションを発見
           </h1>
-          <p className="text-base sm:text-lg md:text-xl mb-8 drop-shadow-md">
+          <p className="text-base sm:text-lg md:text-xl mb-8 drop-shadow-md text-shadow-lg/50">
             あなたのスタイルをアップグレードするアイテムを見つけよう
           </p>
           <Link href="/products">
-            <button className="px-6 py-3 bg-white text-blue-800 font-semibold rounded-full shadow-md hover:bg-gray-200 transition-colors text-sm sm:text-base">
+      <button className="px-6 py-3 bg-white text-blue-800 font-semibold rounded-full shadow-md hover:bg-gray-200 transition-colors text-sm sm:text-base border border-gray-700">
               今すぐ見る
             </button>
           </Link>
@@ -85,6 +85,8 @@ export default function Home() {
                   price={item.price}
                   imageUrl={item.image_url ?? undefined}
                   imageSize={400}
+                  rating={item.review_avg}
+                  reviewCount={item.review_count}                  
                 />
               ))}
           </div>
@@ -107,6 +109,8 @@ export default function Home() {
                   price={item.price}
                   imageUrl={item.image_url ?? undefined}
                   showCartButton
+                  rating={item.review_avg}
+                  reviewCount={item.review_count}                  
                 />
               ))}
           </div>
